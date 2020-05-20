@@ -1,0 +1,46 @@
+{
+  "name": "{{ agave.appsPrefix }}-bam-sort-gf2",
+  "version": "1.10.01",
+  "label": "BAM sort with SAMTools",
+  "defaultNodeCount": 1,
+  "defaultMemoryPerNode": 1,
+  "defaultProcessorsPerNode": 1,
+  "executionType": "HPC",
+  "parallelism": "SERIAL",
+  "checkpointable": false,
+  "executionSystem": "{{ agave.executionSystem }}",
+  "deploymentPath": "{{ agave.appsDir }}/bam-sort-gf2-1.10-01",
+  "deploymentSystem": "{{ agave.deploymentSystem }}",
+  "templatePath": "bam-sort-gf2.sh",
+  "testPath": "test/test.sh",
+  "inputs": [
+    { "id": "input",
+      "value": {
+        "required": true,
+        "default": ""
+      }
+    }
+  ],
+  "parameters": [
+    { "id": "sort_order",
+      "value": {
+        "required": false,
+        "default": "coordinate",
+        "type": "string"
+      }
+    },
+    { "id": "output",
+      "value": {
+        "required": true,
+        "type": "string"
+      }
+    },
+    { "id": "exec_method",
+      "value": {
+        "required": true,
+        "default": "auto",
+        "type": "string"
+      }
+    }
+  ]
+}

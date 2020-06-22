@@ -7,7 +7,7 @@
 #### Helper Functions ####
 ###############################################################################
 
-## MODIFY >>> *****************************************************************
+## ****************************************************************************
 ## Usage description should match command line arguments defined below
 usage () {
     echo "Usage: $(basename "$0")"
@@ -15,9 +15,10 @@ usage () {
     echo "  --sort_order => Sort Order"
     echo "  --output => Output Directory"
     echo "  --exec_method => Execution method (singularity, auto)"
+    echo "  --exec_init => Execution initialization command(s)"
     echo "  --help => Display this help message"
 }
-## ***************************************************************** <<< MODIFY
+## ****************************************************************************
 
 # report error code for command
 safeRunCommand() {
@@ -86,11 +87,11 @@ if [ $? -ne 4 ]; then
     exit 1
 fi
 
-## MODIFY >>> *****************************************************************
+## ****************************************************************************
 ## Command line options should match usage description
 OPTIONS=
-LONGOPTIONS=help,exec_method:,input:,sort_order:,output:,
-## ***************************************************************** <<< MODIFY
+LONGOPTIONS=help,exec_method:,exec_init:,input:,sort_order:,output:,
+## ****************************************************************************
 
 # -temporarily store output to be able to check for errors
 # -e.g. use "--options" parameter by name to activate quoting/enhanced mode
@@ -108,13 +109,14 @@ fi
 # read getopt's output this way to handle the quoting right:
 eval set -- "$PARSED"
 
-## MODIFY >>> *****************************************************************
+## ****************************************************************************
 ## Set any defaults for command line options
 SORT_ORDER="coordinate"
 EXEC_METHOD="auto"
-## ***************************************************************** <<< MODIFY
+EXEC_INIT=""
+## ****************************************************************************
 
-## MODIFY >>> *****************************************************************
+## ****************************************************************************
 ## Handle each command line option. Lower-case variables, e.g., ${file}, only
 ## exist if they are set as environment variables before script execution.
 ## Environment variables are used by Agave. If the environment variable is not
@@ -158,6 +160,14 @@ while true; do
             fi
             shift 2
             ;;
+        --exec_init)
+            if [ -z "${exec_init}" ]; then
+                EXEC_INIT=$2
+            else
+                EXEC_INIT=${exec_init}
+            fi
+            shift 2
+            ;;
         --)
             shift
             break
@@ -169,15 +179,16 @@ while true; do
             ;;
     esac
 done
-## ***************************************************************** <<< MODIFY
+## ****************************************************************************
 
-## MODIFY >>> *****************************************************************
+## ****************************************************************************
 ## Log any variables passed as inputs
 echo "Input: ${INPUT}"
 echo "Sort_order: ${SORT_ORDER}"
 echo "Output: ${OUTPUT}"
 echo "Execution Method: ${EXEC_METHOD}"
-## ***************************************************************** <<< MODIFY
+echo "Execution Initialization: ${EXEC_INIT}"
+## ****************************************************************************
 
 
 
@@ -185,7 +196,7 @@ echo "Execution Method: ${EXEC_METHOD}"
 #### Validate and Set Variables ####
 ###############################################################################
 
-## MODIFY >>> *****************************************************************
+## ****************************************************************************
 ## Add app-specific logic for handling and parsing inputs and parameters
 
 # INPUT input
@@ -239,25 +250,21 @@ else
     exit 1
 fi
 
-
-## ***************************************************************** <<< MODIFY
+## ****************************************************************************
 
 ## EXEC_METHOD: execution method
 ## Suggested possible options:
 ##   auto: automatically determine execution method
-##   package: binaries packaged with the app
-##   cdc-shared-package: binaries centrally located at the CDC
 ##   singularity: singularity image packaged with the app
-##   cdc-shared-singularity: singularity image centrally located at the CDC
 ##   docker: docker containers from docker-hub
 ##   environment: binaries available in environment path
-##   module: environment modules
 
-## MODIFY >>> *****************************************************************
+## ****************************************************************************
 ## List supported execution methods for this app (space delimited)
 exec_methods="singularity auto"
-## ***************************************************************** <<< MODIFY
+## ****************************************************************************
 
+## ****************************************************************************
 # make sure the specified execution method is included in list
 if ! contains " ${exec_methods} " " ${EXEC_METHOD} "; then
     echo "Invalid execution method: ${EXEC_METHOD}"
@@ -265,6 +272,20 @@ if ! contains " ${exec_methods} " " ${EXEC_METHOD} "; then
     usage
     exit 1
 fi
+## ****************************************************************************
+
+
+
+###############################################################################
+#### App Execution Initialization ####
+###############################################################################
+
+## ****************************************************************************
+## Execute any "init" commands passed to the GeneFlow CLI
+CMD="${EXEC_INIT}"
+echo "CMD=${CMD}"
+safeRunCommand "${CMD}"
+## ****************************************************************************
 
 
 
@@ -275,7 +296,7 @@ fi
 # assign to new variable in order to auto-detect after Agave
 # substitution of EXEC_METHOD
 AUTO_EXEC=${EXEC_METHOD}
-## MODIFY >>> *****************************************************************
+## ****************************************************************************
 ## Add app-specific paths to detect the execution method.
 if [ "${EXEC_METHOD}" = "auto" ]; then
     # detect execution method
@@ -297,11 +318,11 @@ fi
 #### App Execution Preparation, Common to all Exec Methods ####
 ###############################################################################
 
-## MODIFY >>> *****************************************************************
+## ****************************************************************************
 ## Add logic to prepare environment for execution
 MNT=""; ARG=""; CMD0="mkdir -p ${OUTPUT_FULL} ${ARG}"; CMD="${CMD0}"; echo "CMD=${CMD}"; safeRunCommand "${CMD}"; 
 MNT=""; ARG=""; CMD0="mkdir -p ${LOG_FULL} ${ARG}"; CMD="${CMD0}"; echo "CMD=${CMD}"; safeRunCommand "${CMD}"; 
-## ***************************************************************** <<< MODIFY
+## ****************************************************************************
 
 
 
@@ -309,15 +330,15 @@ MNT=""; ARG=""; CMD0="mkdir -p ${LOG_FULL} ${ARG}"; CMD="${CMD0}"; echo "CMD=${C
 #### App Execution, Specific to each Exec Method ####
 ###############################################################################
 
-## MODIFY >>> *****************************************************************
+## ****************************************************************************
 ## Add logic to execute app
 ## There should be one case statement for each item in $exec_methods
 case "${AUTO_EXEC}" in
     singularity)
-        MNT=""; ARG=""; MNT="${MNT} -B "; MNT="${MNT}\"${INPUT_DIR}:/data1\""; ARG="${ARG} \"/data1/${INPUT_BASE}\""; if [ "${SORT_ORDER}" = "queryname" ]; then ARG="${ARG} -n"; fi; CMD0="singularity -s exec ${MNT} docker://quay.io/biocontainers/samtools:1.10--h9402c20_2 samtools sort ${ARG}"; CMD0="${CMD0} >\"${OUTPUT_FULL}/${OUTPUT_BASE}.bam\""; CMD0="${CMD0} 2>\"${LOG_FULL}/${OUTPUT_BASE}-samtools-sort.stderr\""; CMD="${CMD0}"; echo "CMD=${CMD}"; safeRunCommand "${CMD}"; 
+        MNT=""; ARG=""; MNT="${MNT} -B "; MNT="${MNT}\"${INPUT_DIR}:/data1\""; ARG="${ARG} \"/data1/${INPUT_BASE}\""; if [ "${SORT_ORDER}" = "queryname" ]; then ARG="${ARG} -n"; fi; CMD0="singularity -s exec ${MNT} docker://quay.io/biocontainers/samtools:1.10--h9402c20_1 samtools sort ${ARG}"; CMD0="${CMD0} >\"${OUTPUT_FULL}/${OUTPUT_BASE}.bam\""; CMD0="${CMD0} 2>\"${LOG_FULL}/${OUTPUT_BASE}-samtools-sort.stderr\""; CMD="${CMD0}"; echo "CMD=${CMD}"; safeRunCommand "${CMD}"; 
         ;;
 esac
-## ***************************************************************** <<< MODIFY
+## ****************************************************************************
 
 
 
@@ -325,7 +346,7 @@ esac
 #### Cleanup, Common to All Exec Methods ####
 ###############################################################################
 
-## MODIFY >>> *****************************************************************
+## ****************************************************************************
 ## Add logic to cleanup execution artifacts, if necessary
-## ***************************************************************** <<< MODIFY
+## ****************************************************************************
 

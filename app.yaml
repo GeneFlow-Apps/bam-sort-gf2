@@ -18,7 +18,7 @@ description: BAM sort with SAMTools
 git: https://git.biotech.cdc.gov/geneflow-apps/bam-sort-gf2.git
 # version: must be incremented every time this file, or any file in the app 
 # project is modified
-version: '1.10-01'
+version: '1.10-02'
 
 
 
@@ -119,7 +119,7 @@ exec_methods:
   exec:
   # sort bam file
   - type: singularity
-    image: docker://quay.io/biocontainers/samtools:1.10--h9402c20_2
+    image: docker://quay.io/biocontainers/samtools:1.10--h9402c20_1
     run: samtools sort
     args:
     - mount: ${INPUT}

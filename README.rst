@@ -1,7 +1,7 @@
 BAM Sort GeneFlow App
 =====================
 
-Version: 1.10-01
+Version: 1.10-02
 
 This GeneFlow app wraps SAMTools to generate a standard sorted BAM file.
 

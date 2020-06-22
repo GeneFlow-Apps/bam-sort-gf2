@@ -12,6 +12,7 @@
 usage () {
     echo "Usage: $(basename "$0")"
     echo "  --exec_method => Execution method (singularity, auto)"
+    echo "  --exec_init => Execution initialization command(s)"
     echo "  --help => Display this help message"
 }
 ## ***************************************************************** <<< MODIFY
@@ -73,6 +74,7 @@ eval set -- "$PARSED"
 ## MODIFY >>> *****************************************************************
 ## Set any defaults for command line options
 EXEC_METHOD=auto
+EXEC_INIT=""
 ## ***************************************************************** <<< MODIFY
 
 ## MODIFY >>> *****************************************************************
@@ -85,6 +87,10 @@ while true; do
             ;;
         --exec_method)
             EXEC_METHOD=$2
+            shift 2
+            ;;
+        --exec_init)
+            EXEC_INIT=$2
             shift 2
             ;;
         --)
@@ -111,6 +117,7 @@ CMD="${SCRIPT_DIR}/../assets/bam-sort-gf2.sh"
     CMD="${CMD} --sort_order=\"coordinate\""
     CMD="${CMD} --output=\"output\""
     CMD="${CMD} --exec_method=\"${EXEC_METHOD}\""
+    CMD="${CMD} --exec_init=\"${EXEC_INIT}\""
 echo "CMD=${CMD}"
 safeRunCommand "${CMD}"
 

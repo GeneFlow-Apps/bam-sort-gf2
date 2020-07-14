@@ -246,3 +246,8 @@ implementation:
   local:
     script: bam-sort-gf2.sh
 
+
+
+implementation:
+  local:
+    script: bam-sort-gf2.sh

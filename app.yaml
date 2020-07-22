@@ -125,7 +125,7 @@ exec_methods:
     - if: 
       - str_equal: ['${SORT_ORDER}', 'queryname']
       flag: -n
-    stdout: ${OUTPUT_DIR}/${OUTPUT_BASE}.bam
+    stdout: ${OUTPUT_DIR}/${OUTPUT_BASE}
     stderr: ${LOG_FULL}/${OUTPUT_BASE}-samtools-sort.stderr
 
 # List of optional commands executed after any method-specific execution
@@ -246,6 +246,11 @@ implementation:
   local:
     script: bam-sort-gf2.sh
 
+
+
+implementation:
+  local:
+    script: bam-sort-gf2.sh
 
 
 implementation:

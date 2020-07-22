@@ -334,7 +334,7 @@ MNT=""; ARG=""; CMD0="mkdir -p ${LOG_FULL} ${ARG}"; CMD="${CMD0}"; echo "CMD=${C
 ## There should be one case statement for each item in $exec_methods
 case "${AUTO_EXEC}" in
     singularity)
-        MNT=""; ARG=""; MNT="${MNT} -B "; MNT="${MNT}\"${INPUT_DIR}:/data1\""; ARG="${ARG} \"/data1/${INPUT_BASE}\""; if [ "${SORT_ORDER}" = "queryname" ]; then ARG="${ARG} -n"; fi; CMD0="singularity -s exec ${MNT} docker://quay.io/biocontainers/samtools:1.10--h9402c20_1 samtools sort ${ARG}"; CMD0="${CMD0} >\"${OUTPUT_DIR}/${OUTPUT_BASE}.bam\""; CMD0="${CMD0} 2>\"${LOG_FULL}/${OUTPUT_BASE}-samtools-sort.stderr\""; CMD="${CMD0}"; echo "CMD=${CMD}"; safeRunCommand "${CMD}"; 
+        MNT=""; ARG=""; MNT="${MNT} -B "; MNT="${MNT}\"${INPUT_DIR}:/data1\""; ARG="${ARG} \"/data1/${INPUT_BASE}\""; if [ "${SORT_ORDER}" = "queryname" ]; then ARG="${ARG} -n"; fi; CMD0="singularity -s exec ${MNT} docker://quay.io/biocontainers/samtools:1.10--h9402c20_1 samtools sort ${ARG}"; CMD0="${CMD0} >\"${OUTPUT_DIR}/${OUTPUT_BASE}\""; CMD0="${CMD0} 2>\"${LOG_FULL}/${OUTPUT_BASE}-samtools-sort.stderr\""; CMD="${CMD0}"; echo "CMD=${CMD}"; safeRunCommand "${CMD}"; 
         ;;
 esac
 ## ****************************************************************************

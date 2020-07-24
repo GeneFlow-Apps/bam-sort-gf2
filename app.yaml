@@ -114,11 +114,10 @@ pre_exec:
 exec_methods:
 - name: singularity
   if:
-  - in_path: singularity
+  - file_exist: '${SCRIPT_DIR}/samtools-gf2.simg'
   exec:
-  # sort bam file
-  - type: singularity
-    image: docker://quay.io/biocontainers/samtools:1.10--h9402c20_1
+  - type: 'singularity'
+    image: '${SCRIPT_DIR}/samtools-gf2.simg'
     run: samtools sort
     args:
     - mount: ${INPUT}
@@ -240,19 +239,7 @@ post_exec:
 # 15. exist:            -e value
 # 16. not_exist:        ! -e value
 # 17. in_path:          command -v value >/dev/null 2>&1
-
-
 implementation:
-  local:
+  local: 
     script: bam-sort-gf2.sh
 
-
-
-implementation:
-  local:
-    script: bam-sort-gf2.sh
-
-
-implementation:
-  local:
-    script: bam-sort-gf2.sh

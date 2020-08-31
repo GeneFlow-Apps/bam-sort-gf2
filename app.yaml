@@ -18,7 +18,7 @@ description: BAM sort with SAMTools
 git: https://git.biotech.cdc.gov/geneflow-apps/bam-sort-gf2.git
 # version: must be incremented every time this file, or any file in the app 
 # project is modified
-version: '1.10-03'
+version: '1.10-04'
 
 
 
@@ -85,7 +85,7 @@ parameters:
     description: Output directory that contains sorted BAM file
     type: Directory
     required: true
-    test_value: output
+    test_value: output.bam
 
 
 
@@ -114,17 +114,18 @@ pre_exec:
 exec_methods:
 - name: singularity
   if:
-  - file_exist: '${SCRIPT_DIR}/samtools-gf2.simg'
+  - in_path: singularity
   exec:
-  - type: 'singularity'
-    image: '${SCRIPT_DIR}/samtools-gf2.simg'
+  # sort bam file
+  - type: singularity
+    image: docker://quay.io/biocontainers/samtools:1.10--h2e538c0_3
     run: samtools sort
     args:
     - mount: ${INPUT}
     - if: 
       - str_equal: ['${SORT_ORDER}', 'queryname']
       flag: -n
-    stdout: ${OUTPUT_DIR}/${OUTPUT_BASE}
+    stdout: ${OUTPUT_FULL}
     stderr: ${LOG_FULL}/${OUTPUT_BASE}-samtools-sort.stderr
 
 # List of optional commands executed after any method-specific execution
@@ -239,7 +240,3 @@ post_exec:
 # 15. exist:            -e value
 # 16. not_exist:        ! -e value
 # 17. in_path:          command -v value >/dev/null 2>&1
-implementation:
-  local: 
-    script: bam-sort-gf2.sh
-

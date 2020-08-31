@@ -1,7 +1,7 @@
 BAM Sort GeneFlow App
 =====================
 
-Version: 1.10-02
+Version: 1.10-04
 
 This GeneFlow app wraps SAMTools to generate a standard sorted BAM file.
 
@@ -15,5 +15,5 @@ Parameters
 
 1. sort_order: Sort Order - if 'queryname', then sort by queryname, otherwise sort by coordinate.
 
-2. output: Output Directory - The name of the output directory that will contain the BAM file.
+2. output: Sorted BAM file.
 

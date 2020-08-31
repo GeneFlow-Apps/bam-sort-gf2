@@ -23,12 +23,13 @@ usage () {
 # report error code for command
 safeRunCommand() {
     cmd="$@"
-    eval "$cmd"
-    ERROR_CODE=$?
-    if [ ${ERROR_CODE} -ne 0 ]; then
-        echo "Error when executing command '${cmd}'"
-        exit ${ERROR_CODE}
-    fi
+    eval "$cmd; "'PIPESTAT=("${PIPESTATUS[@]}")'
+    for i in ${!PIPESTAT[@]}; do
+        if [ ${PIPESTAT[$i]} -ne 0 ]; then
+            echo "Error when executing command #${i}: '${cmd}'"
+            exit ${PIPESTAT[$i]}
+        fi
+    done
 }
 
 # print message and exit
@@ -113,7 +114,7 @@ eval set -- "$PARSED"
 ## Set any defaults for command line options
 SORT_ORDER="coordinate"
 EXEC_METHOD="auto"
-EXEC_INIT=""
+EXEC_INIT=":"
 ## ****************************************************************************
 
 ## ****************************************************************************
@@ -132,7 +133,7 @@ while true; do
             if [ -z "${input}" ]; then
                 INPUT=$2
             else
-                INPUT=${input}
+                INPUT="${input}"
             fi
             shift 2
             ;;
@@ -140,7 +141,7 @@ while true; do
             if [ -z "${sort_order}" ]; then
                 SORT_ORDER=$2
             else
-                SORT_ORDER=${sort_order}
+                SORT_ORDER="${sort_order}"
             fi
             shift 2
             ;;
@@ -148,7 +149,7 @@ while true; do
             if [ -z "${output}" ]; then
                 OUTPUT=$2
             else
-                OUTPUT=${output}
+                OUTPUT="${output}"
             fi
             shift 2
             ;;
@@ -156,7 +157,7 @@ while true; do
             if [ -z "${exec_method}" ]; then
                 EXEC_METHOD=$2
             else
-                EXEC_METHOD=${exec_method}
+                EXEC_METHOD="${exec_method}"
             fi
             shift 2
             ;;
@@ -164,7 +165,7 @@ while true; do
             if [ -z "${exec_init}" ]; then
                 EXEC_INIT=$2
             else
-                EXEC_INIT=${exec_init}
+                EXEC_INIT="${exec_init}"
             fi
             shift 2
             ;;
@@ -300,7 +301,7 @@ AUTO_EXEC=${EXEC_METHOD}
 ## Add app-specific paths to detect the execution method.
 if [ "${EXEC_METHOD}" = "auto" ]; then
     # detect execution method
-    if [ -f "${SCRIPT_DIR}/samtools-gf2.simg" ]; then
+    if command -v singularity >/dev/null 2>&1; then
         AUTO_EXEC=singularity
     else
         echo "Valid execution method not detected"
@@ -334,7 +335,7 @@ MNT=""; ARG=""; CMD0="mkdir -p ${LOG_FULL} ${ARG}"; CMD="${CMD0}"; echo "CMD=${C
 ## There should be one case statement for each item in $exec_methods
 case "${AUTO_EXEC}" in
     singularity)
-        MNT=""; ARG=""; MNT="${MNT} -B "; MNT="${MNT}\"${INPUT_DIR}:/data1\""; ARG="${ARG} \"/data1/${INPUT_BASE}\""; if [ "${SORT_ORDER}" = "queryname" ]; then ARG="${ARG} -n"; fi; CMD0="singularity -s exec ${MNT} ${SCRIPT_DIR}/samtools-gf2.simg samtools sort ${ARG}"; CMD0="${CMD0} >\"${OUTPUT_DIR}/${OUTPUT_BASE}\""; CMD0="${CMD0} 2>\"${LOG_FULL}/${OUTPUT_BASE}-samtools-sort.stderr\""; CMD="${CMD0}"; echo "CMD=${CMD}"; safeRunCommand "${CMD}"; 
+        MNT=""; ARG=""; MNT="${MNT} -B "; MNT="${MNT}\"${INPUT_DIR}:/data1\""; ARG="${ARG} \"/data1/${INPUT_BASE}\""; if [ "${SORT_ORDER}" = "queryname" ]; then ARG="${ARG} -n"; fi; CMD0="singularity -s exec ${MNT} docker://quay.io/biocontainers/samtools:1.10--h2e538c0_3 samtools sort ${ARG}"; CMD0="${CMD0} >\"${OUTPUT_FULL}\""; CMD0="${CMD0} 2>\"${LOG_FULL}/${OUTPUT_BASE}-samtools-sort.stderr\""; CMD="${CMD0}"; echo "CMD=${CMD}"; safeRunCommand "${CMD}"; 
         ;;
 esac
 ## ****************************************************************************

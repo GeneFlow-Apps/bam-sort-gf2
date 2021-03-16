@@ -15,10 +15,10 @@ name: bam-sort-gf2
 # description: short description for the app
 description: BAM sort with SAMTools
 # repo_uri: link to the app's git repo
-git: https://git.biotech.cdc.gov/geneflow-apps/bam-sort-gf2.git
+git: https://gitlab.com/geneflow/apps/bam-sort-gf2.git
 # version: must be incremented every time this file, or any file in the app 
 # project is modified
-version: '1.10-04'
+version: '1.10-05'
 
 
 

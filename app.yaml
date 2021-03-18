@@ -18,7 +18,7 @@ description: BAM sort with SAMTools
 git: https://git.biotech.cdc.gov/geneflow-apps/bam-sort-gf2.git
 # version: must be incremented every time this file, or any file in the app 
 # project is modified
-version: '1.10-04'
+version: '1.10-05'
 
 
 
@@ -98,6 +98,7 @@ parameters:
 # is an execution block, as defined in the "Execution Blocks" section at the
 # end of this document.
 pre_exec:
+- run: mkdir -p ${OUTPUT_FULL}
 - run: mkdir -p ${LOG_FULL}
 
 # Supported execution methods are listed here in priority order. Each execution
@@ -125,7 +126,7 @@ exec_methods:
     - if: 
       - str_equal: ['${SORT_ORDER}', 'queryname']
       flag: -n
-    stdout: ${OUTPUT_FULL}
+    stdout: ${OUTPUT_FULL}/${OUTPUT_BASE}.bam
     stderr: ${LOG_FULL}/${OUTPUT_BASE}-samtools-sort.stderr
 
 # List of optional commands executed after any method-specific execution

@@ -85,7 +85,7 @@ parameters:
     description: Output directory that contains sorted BAM file
     type: Directory
     required: true
-    test_value: output.bam
+    test_value: output
 
 
 

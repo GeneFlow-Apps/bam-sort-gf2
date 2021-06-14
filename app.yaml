@@ -18,7 +18,7 @@ description: BAM sort with SAMTools
 git: https://gitlab.com/geneflow/apps/bam-sort-gf2.git
 # version: must be incremented every time this file, or any file in the app 
 # project is modified
-version: '1.10-06'
+version: '1.10-07'
 
 
 
@@ -81,11 +81,11 @@ parameters:
     test_value: coordinate
 
   output:
-    label: Output Directory
-    description: Output directory that contains sorted BAM file
-    type: Directory
+    label: Output BAM File
+    description: Output BAM file
+    type: File
     required: true
-    test_value: output
+    test_value: output.bam
 
 
 
@@ -98,7 +98,6 @@ parameters:
 # is an execution block, as defined in the "Execution Blocks" section at the
 # end of this document.
 pre_exec:
-- run: mkdir -p ${OUTPUT_FULL}
 - run: mkdir -p ${LOG_FULL}
 
 # Supported execution methods are listed here in priority order. Each execution
@@ -126,7 +125,7 @@ exec_methods:
     - if: 
       - str_equal: ['${SORT_ORDER}', 'queryname']
       flag: -n
-    stdout: ${OUTPUT_FULL}/${OUTPUT_BASE}.bam
+    stdout: ${OUTPUT_FULL}
     stderr: ${LOG_FULL}/${OUTPUT_BASE}-samtools-sort.stderr
 
 # List of optional commands executed after any method-specific execution

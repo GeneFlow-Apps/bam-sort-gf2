@@ -115,7 +115,7 @@ SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 CMD="${SCRIPT_DIR}/../assets/bam-sort-gf2.sh"
     CMD="${CMD} --input=\"${SCRIPT_DIR}/data/sample.sam\""
     CMD="${CMD} --sort_order=\"coordinate\""
-    CMD="${CMD} --output=\"output\""
+    CMD="${CMD} --output=\"output.bam\""
     CMD="${CMD} --exec_method=\"${EXEC_METHOD}\""
     CMD="${CMD} --exec_init=\"${EXEC_INIT}\""
 echo "CMD=${CMD}"

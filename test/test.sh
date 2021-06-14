@@ -11,7 +11,7 @@
 ## Usage description should match command line arguments defined below
 usage () {
     echo "Usage: $(basename "$0")"
-    echo "  --exec_method => Execution method (singularity, auto)"
+    echo "  --exec_method => Execution method (docker, auto)"
     echo "  --exec_init => Execution initialization command(s)"
     echo "  --help => Display this help message"
 }
@@ -113,7 +113,7 @@ done
 ###############################################################################
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 CMD="${SCRIPT_DIR}/../assets/bam-sort-gf2.sh"
-    CMD="${CMD} --input=\"${SCRIPT_DIR}/data/input.bam\""
+    CMD="${CMD} --input=\"${SCRIPT_DIR}/data/sample.sam\""
     CMD="${CMD} --sort_order=\"coordinate\""
     CMD="${CMD} --output=\"output\""
     CMD="${CMD} --exec_method=\"${EXEC_METHOD}\""

@@ -18,7 +18,7 @@ description: BAM sort with SAMTools
 git: https://gitlab.com/geneflow/apps/bam-sort-gf2.git
 # version: must be incremented every time this file, or any file in the app 
 # project is modified
-version: '1.10-05'
+version: '1.10-06'
 
 
 
@@ -69,7 +69,7 @@ inputs:
     description: Input BAM file
     type: File
     required: true
-    test_value: ${SCRIPT_DIR}/data/input.bam
+    test_value: ${SCRIPT_DIR}/data/sample.sam
 
 parameters:
   sort_order:
@@ -113,13 +113,13 @@ pre_exec:
 # 3. exec: A list of exeuction blocks to be executed for the execution method.
 #    See the section "Execution Blocks" for more information. 
 exec_methods:
-- name: singularity
+- name: docker
   if:
-  - in_path: singularity
+  - in_path: docker
   exec:
   # sort bam file
-  - type: singularity
-    image: docker://quay.io/biocontainers/samtools:1.10--h2e538c0_3
+  - type: docker
+    image: quay.io/biocontainers/samtools:1.10--h2e538c0_3
     run: samtools sort
     args:
     - mount: ${INPUT}

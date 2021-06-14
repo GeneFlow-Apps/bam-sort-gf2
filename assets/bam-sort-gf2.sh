@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -l
 
 # BAM sort with SAMTools wrapper script
 
@@ -14,7 +14,7 @@ usage () {
     echo "  --input => Input BAM File"
     echo "  --sort_order => Sort Order"
     echo "  --output => Output Directory"
-    echo "  --exec_method => Execution method (singularity, auto)"
+    echo "  --exec_method => Execution method (docker, auto)"
     echo "  --exec_init => Execution initialization command(s)"
     echo "  --help => Display this help message"
 }
@@ -262,7 +262,7 @@ fi
 
 ## ****************************************************************************
 ## List supported execution methods for this app (space delimited)
-exec_methods="singularity auto"
+exec_methods="docker auto"
 ## ****************************************************************************
 
 ## ****************************************************************************
@@ -301,8 +301,8 @@ AUTO_EXEC=${EXEC_METHOD}
 ## Add app-specific paths to detect the execution method.
 if [ "${EXEC_METHOD}" = "auto" ]; then
     # detect execution method
-    if command -v singularity >/dev/null 2>&1; then
-        AUTO_EXEC=singularity
+    if command -v docker >/dev/null 2>&1; then
+        AUTO_EXEC=docker
     else
         echo "Valid execution method not detected"
         echo
@@ -335,8 +335,8 @@ MNT=""; ARG=""; CMD0="mkdir -p ${LOG_FULL} ${ARG}"; CMD="${CMD0}"; echo "CMD=${C
 ## Add logic to execute app
 ## There should be one case statement for each item in $exec_methods
 case "${AUTO_EXEC}" in
-    singularity)
-        MNT=""; ARG=""; MNT="${MNT} -B "; MNT="${MNT}\"${INPUT_DIR}:/data1\""; ARG="${ARG} \"/data1/${INPUT_BASE}\""; if [ "${SORT_ORDER}" = "queryname" ]; then ARG="${ARG} -n"; fi; CMD0="singularity -s exec ${MNT} docker://quay.io/biocontainers/samtools:1.10--h2e538c0_3 samtools sort ${ARG}"; CMD0="${CMD0} >\"${OUTPUT_FULL}/${OUTPUT_BASE}.bam\""; CMD0="${CMD0} 2>\"${LOG_FULL}/${OUTPUT_BASE}-samtools-sort.stderr\""; CMD="${CMD0}"; echo "CMD=${CMD}"; safeRunCommand "${CMD}"; 
+    docker)
+        MNT=""; ARG=""; fnrun0() { echo "samtools sort" | sed 's/>/\\>/g' | sed 's/</\\</g' | sed 's/|/\\|/g'; }; RUN_FULL='samtools sort'; eval "RUN_LIST=($(fnrun0))"; RUN=${RUN_LIST[0]}; for (( ri=1; ri<${#RUN_LIST[@]}; ri++ )); do if [ "${RUN_LIST[$ri]:0:1}" = "^" ]; then RARG="${RUN_LIST[$ri]#?}"; RARG_FULL=$(readlink -f "${RARG}"); RARG_DIR=$(dirname "${RARG}"); RARG_BASE=$(basename "${RARG}"); MNT="${MNT} -v "; MNT="${MNT}\"${RARG_DIR}:/data${ri}_r\""; ARG="${ARG} \"/data${ri}_r/${RARG_BASE}\""; else ARG="${ARG} ${RUN_LIST[$ri]}"; fi; done; MNT="${MNT} -v "; MNT="${MNT}\"${INPUT_DIR}:/data1\""; ARG="${ARG} \"/data1/${INPUT_BASE}\""; if [ "${SORT_ORDER}" = "queryname" ]; then ARG="${ARG} -n"; fi; CMD0="docker run --rm ${MNT} quay.io/biocontainers/samtools:1.10--h2e538c0_3 ${RUN} ${ARG}"; CMD0="${CMD0} >\"${OUTPUT_FULL}/${OUTPUT_BASE}.bam\""; CMD0="${CMD0} 2>\"${LOG_FULL}/${OUTPUT_BASE}-samtools-sort.stderr\""; CMD="${CMD0}"; echo "CMD=${CMD}"; safeRunCommand "${CMD}"; 
         ;;
 esac
 ## ****************************************************************************
